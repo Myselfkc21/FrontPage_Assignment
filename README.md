@@ -3,7 +3,6 @@
 A real-time Hacker News scraper and viewer built with Node.js, React, Socket.IO, and MySQL.
 
 ## Features
-
 - 🔄 Real-time story updates via WebSocket
 - 📊 Live story count from last 5 minutes
 - 💾 MySQL data persistence
@@ -11,19 +10,17 @@ A real-time Hacker News scraper and viewer built with Node.js, React, Socket.IO,
 - ⚡ Automatic updates every 100 seconds
 
 ## Tech Stack
-
 - **Frontend**: React, TailwindCSS, Socket.IO Client
 - **Backend**: Node.js, Express, Socket.IO, Cheerio
 - **Database**: MySQL
 
 ## Prerequisites
-
 - Node.js (v14 or higher)
 - MySQL (v8.0 or higher)
 - npm or yarn
+- nodemon (for development)
 
 ## Project Structure
-
 ```
 hackernews-live/
 ├── client/                 # Frontend React application
@@ -33,7 +30,7 @@ hackernews-live/
 │   ├── package.json
 │   └── ...
 ├── server/                 # Backend Node.js application
-│   │   └── server.js      # Main server file
+│   ├── server.js          # Main server file
 │   ├── package.json
 │   └── ...
 └── README.md
@@ -42,8 +39,11 @@ hackernews-live/
 ## Setup Instructions
 
 ### 1. Database Setup
-**Since this application is made to run locally make sure you install mySQL, you can follow the steps mention in the blog for [windows](https://dev.mysql.com/downloads/installer/) [mac os](https://medium.com/@rodolfovmartins/how-to-install-mysql-on-mac-959df86a5319)**
+First, install MySQL if you haven't already:
+- **Windows**: Download and install from [MySQL Official Website](https://dev.mysql.com/downloads/installer/)
+- **macOS**: Follow this [installation guide](https://medium.com/@rodolfovmartins/how-to-install-mysql-on-mac-959df86a5319)
 
+After installation, create the database and table:
 ```sql
 CREATE DATABASE hackernews;
 USE hackernews;
@@ -65,18 +65,30 @@ CREATE TABLE IF NOT EXISTS stories (
 ```bash
 cd server
 npm install
+npm install nodemon --save-dev  # Install nodemon for development
 ```
 
-In server.js file which is in the server directory, change the values of dbConfig according to yours :
-```
+In server.js, update the database configuration according to your MySQL setup:
+```javascript
+const dbConfig = {
   host: "localhost",
-  user: "your_username",
-  password: "Your_password",
+  user: "your_username",    // Replace with your MySQL username
+  password: "your_password", // Replace with your MySQL password
   database: "hackernews",
+};
+```
+
+Update your package.json with this script:
+```json
+{
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "type": "module" //make sure this line is present in both client and server package.json
+}
 ```
 
 ### 3. Frontend Setup
-
 ```bash
 cd client
 npm install
@@ -87,7 +99,7 @@ npm install
 Start the backend:
 ```bash
 cd server
-npm start
+npm start  # This will run nodemon server.js
 ```
 
 Start the frontend:
@@ -103,7 +115,6 @@ The application will be available at:
 ## WebSocket Events
 
 ### Client-Side Usage
-
 ```javascript
 import io from 'socket.io-client';
 
@@ -130,7 +141,6 @@ socket.on('disconnect', () => {
 ```
 
 ### Server-Side Events
-
 - `connection`: Triggered when a client connects
 - `disconnect`: Triggered when a client disconnects
 - `initial_count`: Sent to client with story count from last 5 minutes
@@ -139,13 +149,13 @@ socket.on('disconnect', () => {
 ## Configuration Options
 
 ### Scraping Interval
-The server scrapes Hacker News every 100 seconds by default. You can modify this in `server.js`:
+The server scrapes Hacker News every 100 seconds by default. Modify in `server.js`:
 ```javascript
 setInterval(startScraping, 100000); // 100 seconds
 ```
 
 ### Database Configuration
-Database settings can be modified in `dbConfig` object in `server.js`:
+Update the dbConfig object in `server.js`:
 ```javascript
 const dbConfig = {
   host: "localhost",
@@ -156,7 +166,6 @@ const dbConfig = {
 ```
 
 ## Error Handling
-
 The application includes error handling for:
 - Database connection issues
 - Scraping failures
@@ -164,7 +173,6 @@ The application includes error handling for:
 - Invalid story data
 
 ## Contributing
-
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
@@ -172,5 +180,14 @@ The application includes error handling for:
 5. Open a Pull Request
 
 ## License
-
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Troubleshooting
+
+If you encounter any issues:
+
+1. Make sure MySQL is running
+2. Check your database configuration in server.js
+3. Ensure all dependencies are installed
+4. Check if ports 3000 and 5173 are available
+5. Look for any error messages in the console
