@@ -67,13 +67,12 @@ cd server
 npm install
 ```
 
-Create a `.env` file in the server directory:
+In server.js file which is in the server directory, change the values of dbConfig according to yours :
 ```
-DB_HOST=localhost
-DB_USER=your_username
-DB_PASSWORD=your_password
-DB_NAME=hackernews
-PORT=3000
+  host: "localhost",
+  user: "your_username",
+  password: "Your_password",
+  database: "hackernews",
 ```
 
 ### 3. Frontend Setup
