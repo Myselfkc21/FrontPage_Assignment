@@ -189,6 +189,26 @@ function fetchSourceData(html) {
   return paragraphs;
 }
 
+//rest api
+app.get("/api/stories", async (req, res) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const [stories] = await connection.query(
+      "SELECT * FROM stories ORDER BY points DESC LIMIT 30"
+    );
+    res.json(stories);
+  } catch (error) {
+    console.error("Error fetching stories:", error);
+    res.status(500).json({ error: "Failed to fetch stories" });
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
+
+
+
 //using socket.io for the client - server communications
 io.on("connection", async (socket) => {
   console.log("Client is connected to the server");
