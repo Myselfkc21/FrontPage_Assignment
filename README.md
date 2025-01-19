@@ -84,7 +84,7 @@ Update your package.json with this script:
   "scripts": {
     "start": "nodemon server.js"
   },
-  "type": "module" //make sure this line is present in both client and server package.json
+  "type": "module"  // Make sure this line is present in both client and server package.json
 }
 ```
 
@@ -112,23 +112,15 @@ The application will be available at:
 - Frontend: http://localhost:5173
 - Backend: http://localhost:3000
 
-## WebSocket Events
+## API Documentation
 
-### Client-Side Usage
+### WebSocket Events
+
+#### Client-Side Implementation
 ```javascript
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:3000');
-
-// Listen for initial story count
-socket.on('initial_count', (data) => {
-  console.log('Stories in last 5 minutes:', data.count);
-});
-
-// Listen for new stories
-socket.on('new_stories', (data) => {
-  console.log('New stories:', data.stories);
-});
 
 // Connection status
 socket.on('connect', () => {
@@ -138,13 +130,107 @@ socket.on('connect', () => {
 socket.on('disconnect', () => {
   console.log('Disconnected from server');
 });
+
+// Data handling
+socket.on('initial_count', (data) => {
+  console.log('Stories in last 5 minutes:', data.count);
+});
+
+socket.on('new_stories', (data) => {
+  console.log('New stories:', data.stories);
+});
 ```
 
-### Server-Side Events
+#### Available WebSocket Events
 - `connection`: Triggered when a client connects
 - `disconnect`: Triggered when a client disconnects
 - `initial_count`: Sent to client with story count from last 5 minutes
 - `new_stories`: Broadcast to all clients when new stories are scraped
+
+#### Example WebSocket Response
+```javascript
+// initial_count event
+{
+  count: 174
+}
+
+// new_stories event
+{
+  stories: [
+    {
+      title: "Example Story",
+      points: "100",
+      author: "user123",
+      website: "example.com",
+      url: "https://example.com/story",
+      content: [...],
+      created_at: "2024-01-19T10:00:00Z"
+    }
+  ]
+}
+```
+
+### REST API
+
+#### Get Top Stories
+```http
+GET /api/stories
+```
+
+Retrieves the top 30 stories sorted by points in descending order.
+
+**URL:** `http://localhost:3000/api/stories`
+
+**Method:** `GET`
+
+**Response Format:** JSON
+
+**Success Response:**
+```json
+[
+  {
+    "id": 1,
+    "title": "Example Story Title",
+    "points": "100",
+    "author": "johndoe",
+    "website": "example.com",
+    "url": "https://example.com/story",
+    "content": "[...]",
+    "created_at": "2024-01-19T10:00:00Z"
+  }
+]
+```
+
+**Error Response:**
+```json
+{
+  "error": "Failed to fetch stories"
+}
+```
+
+**Example Usage:**
+
+Using fetch:
+```javascript
+fetch('http://localhost:3000/api/stories')
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+```
+
+Using curl:
+```bash
+curl http://localhost:3000/api/stories
+```
+
+Using axios:
+```javascript
+import axios from 'axios';
+
+axios.get('http://localhost:3000/api/stories')
+  .then(response => console.log(response.data))
+  .catch(error => console.error('Error:', error));
+```
 
 ## Configuration Options
 
@@ -166,21 +252,31 @@ const dbConfig = {
 ```
 
 ## Error Handling
-The application includes error handling for:
-- Database connection issues
-- Scraping failures
-- WebSocket connection errors
-- Invalid story data
 
-## Contributing
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### WebSocket Errors
+```javascript
+socket.on('connect_error', () => {
+  console.log('Connection error');
+});
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+socket.on('error', (data) => {
+  console.error('Error:', data.message);
+});
+```
+
+### REST API Errors
+```javascript
+fetch('http://localhost:3000/api/stories')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+```
 
 ## Troubleshooting
 
@@ -191,3 +287,20 @@ If you encounter any issues:
 3. Ensure all dependencies are installed
 4. Check if ports 3000 and 5173 are available
 5. Look for any error messages in the console
+
+## Notes
+- WebSocket updates occur every 100 seconds
+- REST API returns maximum 30 stories sorted by points
+- Stories are stored with full content
+- All timestamps are in UTC
+- CORS is enabled for local development
+
+## Contributing
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
